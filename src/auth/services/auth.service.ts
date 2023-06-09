@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   Inject,
@@ -28,8 +29,9 @@ export class AuthService {
 
   async signUp(signUpInput: SignUpInput): Promise<[AuthResponseOutput, HttpException]> {
     try {
-      //@TODO: validate unique userName
       const { password, userName, email, fullName, dateOfBirth } = signUpInput;
+
+      await this.checkDuplicateUserNameOrEmail(userName, email);
 
       validateDateOfBirth(dateOfBirth);
 
@@ -176,6 +178,21 @@ export class AuthService {
       return [response, null];
     } catch (error) {
       return [null, error];
+    }
+  }
+
+  /***
+   * Checks duplicate userName or email
+   */
+  async checkDuplicateUserNameOrEmail(userName: string, email: string): Promise<void> {
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ userName: userName }, { email: email }],
+      },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Username or email already in use.');
     }
   }
 }
