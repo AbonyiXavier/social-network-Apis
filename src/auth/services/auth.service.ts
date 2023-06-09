@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   HttpException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -19,11 +20,15 @@ import { LogoutResponseOutput } from '../dto/output/logout.response.output';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService, private jwtService: JwtService, private configService: ConfigService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(JwtService) private readonly jwtService: JwtService,
+    @Inject(ConfigService) private readonly configService: ConfigService,
+  ) {}
 
   async signUp(signUpInput: SignUpInput): Promise<[AuthResponseOutput, HttpException]> {
     try {
-      // validate unique userName
+      //@TODO: validate unique userName
       const { password, userName, email, fullName, dateOfBirth } = signUpInput;
 
       validateDateOfBirth(dateOfBirth);
