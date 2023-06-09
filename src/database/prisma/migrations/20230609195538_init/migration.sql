@@ -7,6 +7,7 @@ CREATE TABLE "User" (
     "password" TEXT NOT NULL,
     "refreshToken" TEXT,
     "dateOfBirth" TIMESTAMP(3) NOT NULL,
+    "profilePictureUrl" TEXT NOT NULL DEFAULT 'https://good-deed-app.s3-us-west-1.amazonaws.com/user.png',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -15,13 +16,14 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Post" (
-    "id" SERIAL NOT NULL,
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "picture" TEXT NOT NULL,
     "authorId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
 );

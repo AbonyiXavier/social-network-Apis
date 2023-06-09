@@ -11,7 +11,4 @@ export class AuthResponseOutput {
 
   @Field(() => User)
   user: User;
-
-  //@TODO: add post
 }
- 

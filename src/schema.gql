@@ -50,6 +50,65 @@ type NewTokenResponseOutput {
   refreshToken: String!
 }
 
+type PostResponseOutput {
+  id: String!
+  title: String!
+  content: String!
+  picture: String!
+  authorId: String!
+  author: User!
+}
+
+type PostsResponseOutput {
+  """Total Count of results"""
+  totalCount: Float!
+
+  """Total Pages of results"""
+  totalPages: Float!
+
+  """Current page number starting 0"""
+  currentPage: Float!
+
+  """boolean flag to indicate if more pages exists"""
+  nextPage: Boolean!
+
+  """Array of posts output"""
+  posts: [PostResponseOutput!]!
+}
+
+type Query {
+  """Fetch list of posts"""
+  posts(
+    """Pagination input"""
+    paginationArgs: PaginationArgs!
+
+    """search input"""
+    searchBy: PostSearchByInput
+  ): PostsResponseOutput!
+
+  """Fetch a post"""
+  post(id: String!): PostResponseOutput!
+
+  """Fetch list of posts by author"""
+  fetchPostsByAuthor(
+    """Pagination input"""
+    paginationArgs: PaginationArgs!
+
+    """search input"""
+    searchBy: PostSearchByInput
+  ): PostsResponseOutput!
+  user(id: Int!): User!
+}
+
+input PaginationArgs {
+  limit: Int! = 20
+  offset: Int! = 0
+}
+
+input PostSearchByInput {
+  searchTerm: String
+}
+
 type Mutation {
   """SignUp a user"""
   signUp(input: SignUpInput!): AuthResponseOutput!
@@ -62,6 +121,18 @@ type Mutation {
 
   """Get new token for a user when accessToken expires"""
   getNewTokens: NewTokenResponseOutput!
+
+  """Create a post"""
+  createPost(input: CreatePostInput!): PostResponseOutput!
+
+  """Update a post"""
+  updatePost(input: UpdatePostInput!): PostResponseOutput!
+
+  """Delete a post"""
+  deletePost(id: String!): PostResponseOutput!
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  removeUser(id: Int!): User!
 }
 
 input SignUpInput {
@@ -75,6 +146,30 @@ input SignUpInput {
 input SignInInput {
   usernameOrEmail: String!
   password: String!
+}
+
+input CreatePostInput {
+  title: String!
+  content: String!
+  picture: String!
+}
+
+input UpdatePostInput {
+  title: String
+  content: String
+  picture: String
+  id: String!
+}
+
+input CreateUserInput {
+  """Example field (placeholder)"""
+  exampleField: Int!
+}
+
+input UpdateUserInput {
+  """Example field (placeholder)"""
+  exampleField: Int
+  id: Int!
 }
 
 scalar link__Import

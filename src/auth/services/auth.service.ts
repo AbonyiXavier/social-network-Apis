@@ -6,6 +6,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -18,9 +19,12 @@ import { SignUpInput } from '../dto/input/signup.input';
 import { SignInInput } from '../dto/input/signin.input';
 import { IUser } from '../../domain/user/types/user.type';
 import { LogoutResponseOutput } from '../dto/output/logout.response.output';
+import { ICreateTokens } from '../types/auth.type';
+import { IAuthService } from '../interfaces/IAuth.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements IAuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(JwtService) private readonly jwtService: JwtService,
@@ -54,6 +58,7 @@ export class AuthService {
 
       return [response, null];
     } catch (error) {
+      this.logger.error({ stack: error?.stack, message: error?.message });
       return [null, error];
     }
   }
@@ -78,11 +83,12 @@ export class AuthService {
 
       return [response, null];
     } catch (error) {
+      this.logger.error({ stack: error?.stack, message: error?.message });
       return [null, error];
     }
   }
 
-  async createTokens(userId: string, email: string) {
+  async createTokens(userId: string, email: string): Promise<ICreateTokens> {
     const accessToken = this.jwtService.sign(
       {
         userId,
@@ -102,7 +108,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async updateRefreshedToken(userId: string, refreshedToken: string) {
+  async updateRefreshedToken(userId: string, refreshedToken: string): Promise<void> {
     const hashedRefreshedToken = await argon.hash(refreshedToken);
     try {
       await this.prisma.user.update({
@@ -177,6 +183,7 @@ export class AuthService {
 
       return [response, null];
     } catch (error) {
+      this.logger.error({ stack: error?.stack, message: error?.message });
       return [null, error];
     }
   }

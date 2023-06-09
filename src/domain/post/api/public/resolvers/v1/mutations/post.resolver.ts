@@ -1,25 +1,54 @@
-import { Resolver, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { PostService } from '../../../../../services/post.service';
 import { Post } from '../../../../../entities/post.entity';
 import { CreatePostInput } from '../../../../../dto/input/create-post.input';
+import { PostResponseOutput } from '../../../../../dto/output/post.response.output';
+import { CurrentUserId } from '../../../../../../../common/decorators/currentUserId.decorator';
 import { UpdatePostInput } from '../../../../../dto/input/update-post.input';
 
 @Resolver(() => Post)
 export class PostMutationResolver {
   constructor(private readonly postService: PostService) {}
 
-  @Mutation(() => Post)
-  createPost(@Args('createPostInput') createPostInput: CreatePostInput) {
-    return this.postService.create(createPostInput);
+  @Mutation(() => PostResponseOutput, {
+    name: 'createPost',
+    description: 'Create a post',
+  })
+  async createPost(@CurrentUserId() userId: string, @Args('input') input: CreatePostInput) {
+    const [post, error] = await this.postService.createPost(userId, input);
+
+    if (error) {
+      throw error;
+    }
+
+    return post;
   }
 
-  @Mutation(() => Post)
-  updatePost(@Args('updatePostInput') updatePostInput: UpdatePostInput) {
-    return this.postService.update(updatePostInput.id, updatePostInput);
+  @Mutation(() => PostResponseOutput, {
+    name: 'updatePost',
+    description: 'Update a post',
+  })
+  async updatePost(@CurrentUserId() userId: string, @Args('input') input: UpdatePostInput) {
+    const [post, error] = await this.postService.updatePostByAuthor(userId, input);
+
+    if (error) {
+      throw error;
+    }
+
+    return post;
   }
 
-  @Mutation(() => Post)
-  removePost(@Args('id', { type: () => Int }) id: number) {
-    return this.postService.remove(id);
+  @Mutation(() => PostResponseOutput, {
+    name: 'deletePost',
+    description: 'Delete a post',
+  })
+  async deletePost(@CurrentUserId() userId: string, @Args('id') id: string) {
+    const [post, error] = await this.postService.softDeletePostByAuthor(userId, id);
+
+    if (error) {
+      throw error;
+    }
+
+    return post;
   }
 }

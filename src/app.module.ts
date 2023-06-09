@@ -13,6 +13,8 @@ import { PrismaService } from './common/prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessTokenGuard } from './auth/guards/accessToken.guard';
+import { PostModule } from './domain/post/post.module';
+import { UserModule } from './domain/user/user.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { AccessTokenGuard } from './auth/guards/accessToken.guard';
       },
     }),
     AuthModule,
+    PostModule,
+    UserModule,
   ],
   providers: [PrismaService, { provide: APP_GUARD, useClass: AccessTokenGuard }],
   controllers: [],

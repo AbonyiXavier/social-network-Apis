@@ -19,13 +19,14 @@ model User {
   password String
   refreshToken String?
   dateOfBirth DateTime
+  profilePictureUrl String   @default("https://good-deed-app.s3-us-west-1.amazonaws.com/user.png")
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
   posts Post[] // one user can have multple posts
 }
 
 model Post {
-  id        Int      @default(autoincrement()) @id
+  id        String      @default(uuid()) @id
   title     String
   content   String
   picture   String
@@ -33,4 +34,5 @@ model Post {
   authorId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+  deletedAt DateTime?
 }
