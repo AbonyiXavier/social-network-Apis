@@ -22,7 +22,6 @@ This is a RESTful API for an imaginary social network.
 
 ```bash
 ├── src
-├── test
 ├── .env.sample
 ├── .eslintrc
 ├── .gitignore
