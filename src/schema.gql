@@ -174,6 +174,12 @@ type Mutation {
 
   """Change user password"""
   changePassword(input: UserChangePasswordInput!): UserResponseOutput!
+
+  """Single upload for user"""
+  singleUpload(file: Upload): UserResponseOutput!
+
+  """Update user info"""
+  updateUserInfo(input: UpdateUserInput!): UserResponseOutput!
 }
 
 input SignUpInput {
@@ -205,6 +211,14 @@ input UpdatePostInput {
 input UserChangePasswordInput {
   oldPassword: String!
   newPassword: String!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+input UpdateUserInput {
+  userName: String
+  fullName: String
 }
 
 scalar link__Import

@@ -8,7 +8,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { PaginationArgs } from '../../../common/pagination/paginationArgs';
 import { PrismaService } from '../../../common/prisma/prisma.service';
@@ -20,11 +19,14 @@ import { UsersResponseOutput } from '../dto/output/users.response.output';
 import * as argon from 'argon2';
 import { IUser } from '../types/user.type';
 import { IUserService } from '../interfaces/IUser.interface';
+import { join } from 'path';
+import { createWriteStream } from 'fs';
+import { picturePrefix } from '../utilities/constant';
 
 @Injectable()
 export class UserService implements IUserService {
   private readonly logger = new Logger(UserService.name);
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService, @Inject(JwtService) private readonly jwtService: JwtService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async fetchUsers(paginationArgs: PaginationArgs, searchBy: UserSearchByInput): Promise<[UsersResponseOutput, HttpException]> {
     try {
@@ -114,6 +116,64 @@ export class UserService implements IUserService {
         },
         data: {
           password: hashedPassword,
+        },
+      });
+
+      const [response] = await this.userMe(userId);
+
+      return [response, null];
+    } catch (error) {
+      this.logger.error({ stack: error?.stack, message: error?.message });
+      return [null, error];
+    }
+  }
+
+  async uploadProfilePictureUrl(userId: string, file: any): Promise<[UserResponseOutput, HttpException]> {
+    try {
+      if (file) {
+        // Handle file upload
+        const upload = await file.promise;
+        const readStream = upload.createReadStream();
+
+        const path = join(process.cwd(), `./src/upload/${upload.filename}`);
+
+        await new Promise((resolve, reject) => {
+          readStream.pipe(createWriteStream(path)).on('finish', resolve).on('error', reject);
+        });
+
+        // Perform the update operation
+        if (upload?.filename) {
+          await this.prisma.user.update({
+            where: {
+              id: userId,
+            },
+            data: {
+              profilePictureUrl: `${picturePrefix}${upload.filename}`,
+            },
+          });
+        }
+      }
+
+      const [response] = await this.userMe(userId);
+
+      return [response, null];
+    } catch (error) {
+      this.logger.error({ stack: error?.stack, message: error?.message });
+      return [null, error];
+    }
+  }
+
+  async updateUserInfo(userId: string, updateUserInput: UpdateUserInput): Promise<[UserResponseOutput, HttpException]> {
+    try {
+      const { userName, fullName } = updateUserInput;
+
+      await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          userName,
+          fullName,
         },
       });
 
