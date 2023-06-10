@@ -1,4 +1,4 @@
-import { ForbiddenException, HttpException, Inject, Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, HttpException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PaginationArgs } from '../../../common/pagination/paginationArgs';
 import { PrismaService } from '../../../common/prisma/prisma.service';
@@ -85,8 +85,12 @@ export class PostService implements IPostService {
         include: { author: true },
       });
 
-      if (!post || post.authorId !== userId) {
-        throw new ForbiddenException('Post not found or unauthorized.');
+      if (!post) {
+        throw new NotFoundException('Post not found');
+      }
+
+      if (post.authorId !== userId) {
+        throw new ForbiddenException('Unauthorized.');
       }
 
       return [post, null];
@@ -148,7 +152,11 @@ export class PostService implements IPostService {
 
   async softDeletePostByAuthor(userId: string, postId: string): Promise<[PostResponseOutput, HttpException]> {
     try {
-      const post = await this.getPostByIdAndValidateOwnership(postId, userId);
+      const [post, error] = await this.fetchPost(userId, postId);
+
+      if (error) {
+        throw error;
+      }
 
       await this.prisma.post.delete({
         where: {
@@ -167,9 +175,13 @@ export class PostService implements IPostService {
     try {
       const { id: postId, title, content, picture } = updatePostInput;
 
-      await this.getPostByIdAndValidateOwnership(postId, userId);
+      const [_, error] = await this.fetchPost(userId, postId);
 
-      const updatedPost = await this.prisma.post.update({
+      if (error) {
+        throw error;
+      }
+
+      await this.prisma.post.update({
         where: {
           id: postId,
         },
@@ -180,27 +192,13 @@ export class PostService implements IPostService {
         },
       });
 
-      const [post] = await this.fetchPost(userId, updatedPost.id);
+      const [post] = await this.fetchPost(userId, postId);
 
       return [post, null];
     } catch (error) {
       this.logger.error({ stack: error?.stack, message: error?.message });
       return [null, error];
     }
-  }
-
-  async getPostByIdAndValidateOwnership(postId: string, userId: string): Promise<PostResponseOutput> {
-    const post = await this.prisma.post.findUnique({
-      where: {
-        id: postId,
-      },
-      include: { author: true },
-    });
-
-    if (!post || post.authorId !== userId) {
-      throw new ForbiddenException('Post not found or unauthorized.');
-    }
-    return post;
   }
 
   public async getPaginationMetadata(where: Prisma.PostWhereInput, offset: number, limit: number) {

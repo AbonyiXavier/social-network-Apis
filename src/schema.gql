@@ -76,6 +76,32 @@ type PostsResponseOutput {
   posts: [PostResponseOutput!]!
 }
 
+type UserResponseOutput {
+  id: String!
+  userName: String!
+  fullName: String!
+  email: String!
+  dateOfBirth: DateTime!
+  profilePictureUrl: String!
+}
+
+type UsersResponseOutput {
+  """Total Count of results"""
+  totalCount: Float!
+
+  """Total Pages of results"""
+  totalPages: Float!
+
+  """Current page number starting 0"""
+  currentPage: Float!
+
+  """boolean flag to indicate if more pages exists"""
+  nextPage: Boolean!
+
+  """Array of users output"""
+  users: [UserResponseOutput!]!
+}
+
 type Query {
   """Fetch list of posts"""
   posts(
@@ -97,7 +123,18 @@ type Query {
     """search input"""
     searchBy: PostSearchByInput
   ): PostsResponseOutput!
-  user(id: Int!): User!
+
+  """Fetch all users"""
+  fetchUsers(
+    """Pagination input"""
+    paginationArgs: PaginationArgs!
+
+    """search input"""
+    searchBy: UserSearchByInput
+  ): UsersResponseOutput!
+
+  """Get logged in user details"""
+  userMe: UserResponseOutput!
 }
 
 input PaginationArgs {
@@ -106,6 +143,10 @@ input PaginationArgs {
 }
 
 input PostSearchByInput {
+  searchTerm: String
+}
+
+input UserSearchByInput {
   searchTerm: String
 }
 
@@ -130,9 +171,9 @@ type Mutation {
 
   """Delete a post"""
   deletePost(id: String!): PostResponseOutput!
-  createUser(createUserInput: CreateUserInput!): User!
-  updateUser(updateUserInput: UpdateUserInput!): User!
-  removeUser(id: Int!): User!
+
+  """Change user password"""
+  changePassword(input: UserChangePasswordInput!): UserResponseOutput!
 }
 
 input SignUpInput {
@@ -161,15 +202,9 @@ input UpdatePostInput {
   id: String!
 }
 
-input CreateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
-input UpdateUserInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
+input UserChangePasswordInput {
+  oldPassword: String!
+  newPassword: String!
 }
 
 scalar link__Import

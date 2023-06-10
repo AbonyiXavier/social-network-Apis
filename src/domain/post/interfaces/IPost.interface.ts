@@ -14,6 +14,5 @@ export interface IPostService {
   fetchPostsByAuthor(authorId: string, paginationArgs: PaginationArgs, searchBy: PostSearchByInput): Promise<[PostsResponseOutput, HttpException]>;
   softDeletePostByAuthor(userId: string, postId: string): Promise<[PostResponseOutput, HttpException]>;
   updatePostByAuthor(userId: string, updatePostInput: UpdatePostInput): Promise<[PostResponseOutput, HttpException]>;
-  getPostByIdAndValidateOwnership(postId: string, userId: string): Promise<PostResponseOutput>;
   getPaginationMetadata(where: Prisma.PostWhereInput, offset: number, limit: number);
 }

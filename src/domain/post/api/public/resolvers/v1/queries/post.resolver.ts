@@ -19,13 +19,13 @@ export class PostQueryResolver {
     @Args({ name: 'paginationArgs', description: 'Pagination input' }) paginationArgs: PaginationArgs,
     @Args({ name: 'searchBy', description: 'search input', nullable: true }) searchBy: PostSearchByInput,
   ) {
-    const [post, error] = await this.postService.fetchPosts(paginationArgs, searchBy);
+    const [posts, error] = await this.postService.fetchPosts(paginationArgs, searchBy);
 
     if (error) {
       throw error;
     }
 
-    return post;
+    return posts;
   }
 
   @Query(() => PostResponseOutput, {
@@ -51,12 +51,12 @@ export class PostQueryResolver {
     @Args({ name: 'paginationArgs', description: 'Pagination input' }) paginationArgs: PaginationArgs,
     @Args({ name: 'searchBy', description: 'search input', nullable: true }) searchBy: PostSearchByInput,
   ) {
-    const [post, error] = await this.postService.fetchPostsByAuthor(userId, paginationArgs, searchBy);
+    const [posts, error] = await this.postService.fetchPostsByAuthor(userId, paginationArgs, searchBy);
 
     if (error) {
       throw error;
     }
 
-    return post;
+    return posts;
   }
 }
