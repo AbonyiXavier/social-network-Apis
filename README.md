@@ -82,7 +82,7 @@ The diagramatic representaion of the models can be found here
 - Fetch posts by author
 - Soft delete post bt author
 - Update post by author with either with picture upload or not
-- SearchBy implementation for post and user
+- Search functionality for post and user
 
 
 
