@@ -5,6 +5,7 @@ import { CreatePostInput } from '../../../../../dto/input/create-post.input';
 import { PostResponseOutput } from '../../../../../dto/output/post.response.output';
 import { CurrentUserId } from '../../../../../../../common/decorators/currentUserId.decorator';
 import { UpdatePostInput } from '../../../../../dto/input/update-post.input';
+import * as GraphQLUpload from 'graphql-upload/GraphQLUpload.js';
 
 @Resolver(() => Post)
 export class PostMutationResolver {
@@ -14,8 +15,12 @@ export class PostMutationResolver {
     name: 'createPost',
     description: 'Create a post',
   })
-  async createPost(@CurrentUserId() userId: string, @Args('input') input: CreatePostInput) {
-    const [post, error] = await this.postService.createPost(userId, input);
+  async createPost(
+    @CurrentUserId() userId: string,
+    @Args('input') input: CreatePostInput,
+    @Args('file', { nullable: true, type: () => GraphQLUpload }) file: any,
+  ) {
+    const [post, error] = await this.postService.createPost(userId, input, file);
 
     if (error) {
       throw error;
@@ -28,8 +33,12 @@ export class PostMutationResolver {
     name: 'updatePost',
     description: 'Update a post',
   })
-  async updatePost(@CurrentUserId() userId: string, @Args('input') input: UpdatePostInput) {
-    const [post, error] = await this.postService.updatePostByAuthor(userId, input);
+  async updatePost(
+    @CurrentUserId() userId: string,
+    @Args('input') input: UpdatePostInput,
+    @Args('file', { nullable: true, type: () => GraphQLUpload }) file: any,
+  ) {
+    const [post, error] = await this.postService.updatePostByAuthor(userId, input, file);
 
     if (error) {
       throw error;

@@ -2,6 +2,8 @@ import { ForbiddenException, HttpException, Inject, Injectable, Logger, NotFound
 import { Prisma } from '@prisma/client';
 import { PaginationArgs } from '../../../common/pagination/paginationArgs';
 import { PrismaService } from '../../../common/prisma/prisma.service';
+import { uploadFile } from '../../../common/utilities/utilities';
+import { picturePrefix } from '../../user/utilities/constant';
 import { CreatePostInput } from '../dto/input/create-post.input';
 import { PostSearchByInput } from '../dto/input/post-search.input';
 import { UpdatePostInput } from '../dto/input/update-post.input';
@@ -13,13 +15,33 @@ import { IPostService } from '../interfaces/IPost.interface';
 export class PostService implements IPostService {
   private readonly logger = new Logger(PostService.name);
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
-  async createPost(userId: string, input: CreatePostInput): Promise<[PostResponseOutput, HttpException]> {
+  async createPost(userId: string, input: CreatePostInput, file: any): Promise<[PostResponseOutput, HttpException]> {
     try {
+      if (file) {
+        // Handle file upload
+        const upload = await uploadFile(file);
+
+        // Perform the create operation
+        if (upload?.filename) {
+          const post = await this.prisma.post.create({
+            data: {
+              title: input.title,
+              content: input.content,
+              picture: `${picturePrefix}${upload.filename}`,
+              author: { connect: { id: userId } },
+            },
+            include: { author: true },
+          });
+
+          return [post, null];
+        }
+      }
+
       const post = await this.prisma.post.create({
         data: {
           title: input.title,
           content: input.content,
-          picture: input.picture,
+          picture: '',
           author: { connect: { id: userId } },
         },
         include: { author: true },
@@ -171,16 +193,40 @@ export class PostService implements IPostService {
     }
   }
 
-  async updatePostByAuthor(userId: string, updatePostInput: UpdatePostInput): Promise<[PostResponseOutput, HttpException]> {
+  async updatePostByAuthor(userId: string, updatePostInput: UpdatePostInput, file: any): Promise<[PostResponseOutput, HttpException]> {
     try {
-      const { id: postId, title, content, picture } = updatePostInput;
+      const { id: postId, title, content } = updatePostInput;
 
-      const [_, error] = await this.fetchPost(userId, postId);
+      const [fetchPost, error] = await this.fetchPost(userId, postId);
+
+      this.logger.log(fetchPost);
 
       if (error) {
         throw error;
       }
 
+      if (file) {
+        // Handle file upload
+        const upload = await uploadFile(file);
+
+        // Perform the update operation
+        if (upload?.filename) {
+          await this.prisma.post.update({
+            where: {
+              id: postId,
+            },
+            data: {
+              title,
+              content,
+              picture: `${picturePrefix}${upload.filename}`,
+            },
+          });
+
+          const [post] = await this.fetchPost(userId, postId);
+
+          return [post, null];
+        }
+      }
       await this.prisma.post.update({
         where: {
           id: postId,
@@ -188,7 +234,6 @@ export class PostService implements IPostService {
         data: {
           title,
           content,
-          picture,
         },
       });
 

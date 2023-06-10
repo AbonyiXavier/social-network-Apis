@@ -19,9 +19,9 @@ import { UsersResponseOutput } from '../dto/output/users.response.output';
 import * as argon from 'argon2';
 import { IUser } from '../types/user.type';
 import { IUserService } from '../interfaces/IUser.interface';
-import { join } from 'path';
-import { createWriteStream } from 'fs';
+
 import { picturePrefix } from '../utilities/constant';
+import { uploadFile } from '../../../common/utilities/utilities';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -132,14 +132,7 @@ export class UserService implements IUserService {
     try {
       if (file) {
         // Handle file upload
-        const upload = await file.promise;
-        const readStream = upload.createReadStream();
-
-        const path = join(process.cwd(), `./src/upload/${upload.filename}`);
-
-        await new Promise((resolve, reject) => {
-          readStream.pipe(createWriteStream(path)).on('finish', resolve).on('error', reject);
-        });
+        const upload = await uploadFile(file);
 
         // Perform the update operation
         if (upload?.filename) {

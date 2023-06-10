@@ -164,10 +164,10 @@ type Mutation {
   getNewTokens: NewTokenResponseOutput!
 
   """Create a post"""
-  createPost(input: CreatePostInput!): PostResponseOutput!
+  createPost(input: CreatePostInput!, file: Upload): PostResponseOutput!
 
   """Update a post"""
-  updatePost(input: UpdatePostInput!): PostResponseOutput!
+  updatePost(input: UpdatePostInput!, file: Upload): PostResponseOutput!
 
   """Delete a post"""
   deletePost(id: String!): PostResponseOutput!
@@ -198,13 +198,14 @@ input SignInInput {
 input CreatePostInput {
   title: String!
   content: String!
-  picture: String!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 input UpdatePostInput {
   title: String
   content: String
-  picture: String
   id: String!
 }
 
@@ -212,9 +213,6 @@ input UserChangePasswordInput {
   oldPassword: String!
   newPassword: String!
 }
-
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
 
 input UpdateUserInput {
   userName: String
