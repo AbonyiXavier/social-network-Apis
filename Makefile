@@ -18,6 +18,3 @@ studio:
 
 up:
 	docker compose up
-
-update-migration:
-	npx prisma generate
