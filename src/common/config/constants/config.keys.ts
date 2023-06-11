@@ -4,8 +4,4 @@ export enum ConfigKeys {
 
   // APP Configs
   PORT = 'PORT',
-  APP_ENV = 'APP_ENV',
-  GRAPHQL_PLAYGROUND_ENABLED = 'GRAPHQL_PLAYGROUND_ENABLED',
-
-  NODE_ENV = 'NODE_ENV',
 }

@@ -61,7 +61,7 @@ Post Model
 - updatedAt
 - deletedAt
 
-The diagramatic representaion of the models can be found here 
+The diagrammatic representation of the models can be found here 
 
 ![ER-Diagram](https://github.com/AbonyiXavier/social-network-Apis/assets/49367987/db7452c8-47f4-4f0d-b3a9-fa694678b45d)
 ### Features Implemented
@@ -144,6 +144,10 @@ How to run all tests locally
 ## _API Endpoints_
 
 - Public API documentation of this project is available on [postman docs](https://documenter.getpostman.com/view/7775892/2s93sc5CvS)
+
+- To test create post with picture or update post with picture or upload single profilePictureUrl for user, kindly download [Altair GraphQL Client](https://altairgraphql.dev/).
+
+  Test for updatePost with picture on Altair GraphQl Client <img width="1260" alt="altair client" src="https://github.com/AbonyiXavier/social-network-Apis/assets/49367987/260585ab-e691-406b-8a28-f7eb441703c5">
 
 # Improvements
 

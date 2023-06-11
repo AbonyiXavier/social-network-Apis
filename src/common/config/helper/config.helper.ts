@@ -9,20 +9,8 @@ export class ConfigHelper {
     this.configService = new ConfigService();
   }
 
-  public getNumberOrError(key: string): number {
-    return parseInt(this.getValOrError(key));
-  }
-
   public getNumberWithDefault(key: string, defaultVal: number): number {
     return parseInt(this.getValWithDefault(key, defaultVal));
-  }
-
-  public getStringOrError(key: string): string {
-    return this.getValOrError(key);
-  }
-
-  public getStringWithDefault(key: string, defaultVal: string): string {
-    return this.getValWithDefault(key, defaultVal);
   }
 
   public getBoolOrError(key: string): boolean {
